@@ -1,9 +1,10 @@
-# Integrantes do Grupo - Engenharia de Software 2
+# Engenharia de Software 2
 
-Francini https://github.com/FranciniAssandre
+## Integrantes do Grupo
 
-Gabrielly Maria https://github.com/gabriellymsb
-
-Maria Luiza Prestes https://github.com/mluizaa00
-
-[Vitor Yuki] (github)
+| Nome | Perfil |
+| --- | --- |
+| Francini Assandre | [@FranciniAssandre](https://github.com/FranciniAssandre) |
+| Gabrielly Maria | [@gabriellymsb](https://github.com/gabriellymsb) |
+| Maria Luiza Prestes | [@mluizaa00](https://github.com/mluizaa00) |
+| Vitor Yuki | [@Inumaru114](https://github.com/Inumaru114) |
