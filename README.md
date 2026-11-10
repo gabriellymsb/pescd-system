@@ -12,7 +12,7 @@ O sistema depende de um PostgreSQL e de um SeaweedFS (armazenamento dos PDFs).
 Ambos sobem via Docker Compose:
 
 ```bash
-docker compose up -d      # sobe postgres (5432) e seaweedfs (9333/8081/8888)
+docker compose down && docker compose up -d     # sobe postgres (5432) e seaweedfs (9333/8081/8888)
 ./mvnw spring-boot:run    # sobe a API Spring Boot em http://localhost:8082 (+ Swagger em /swagger-ui.html)
 ```
 
