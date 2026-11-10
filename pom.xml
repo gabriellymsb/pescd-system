@@ -29,8 +29,8 @@
 	<properties>
 		<java.version>17</java.version>
 		<jacoco.version>0.8.13</jacoco.version>
-		<sonar.organization>gabriellymsb</sonar.organization>
-		<sonar.projectKey>gabriellymsb_pescd-system</sonar.projectKey>
+		<sonar.organization>ufscar-es2-pescd</sonar.organization>
+		<sonar.projectKey>ufscar-es2-pescd_pescd</sonar.projectKey>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 		<sonar.sources>src/main,frontend/src</sonar.sources>
 		<sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
