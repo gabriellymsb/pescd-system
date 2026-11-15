@@ -18,6 +18,7 @@ export default function ResponsavelEnrollmentPage() {
   const [message, setMessage] = useState('');
   const [docForm, setDocForm] = useState({ parecer: '', frequencia: '', nota: '' });
   const [reportForm, setReportForm] = useState({ parecer: '', frequencia: '', nota: '' });
+  const [returnParecer, setReturnParecer] = useState('');
   const [busy, setBusy] = useState(false);
 
   async function load() {
@@ -44,6 +45,17 @@ export default function ResponsavelEnrollmentPage() {
         parecer: docForm.parecer, frequencia: Number(docForm.frequencia), nota: docForm.nota,
       });
       setMessage('Documentação analisada e aprovada.');
+      await load();
+    } catch (err) { setError(err.message); } finally { setBusy(false); }
+  }
+
+  async function returnDoc(event) {
+    event.preventDefault();
+    setError(''); setMessage(''); setBusy(true);
+    try {
+      await api.post(`${base}/documentation/return`, { parecer: returnParecer });
+      setMessage('Documentação devolvida ao aluno.');
+      setReturnParecer('');
       await load();
     } catch (err) { setError(err.message); } finally { setBusy(false); }
   }
@@ -134,6 +146,22 @@ export default function ResponsavelEnrollmentPage() {
         <div className="card" style={{ maxWidth: 720 }}>
           <SectionTitle>Parecer do responsável (PR.02 — analisar documentação)</SectionTitle>
           <ParecerNotaForm state={docForm} setState={setDocForm} onSubmit={analyzeDoc} busy={busy} submitLabel="✓ Concluir análise" />
+        </div>
+      )}
+
+      {/* Mud4 — devolver documentação ao aluno */}
+      {status === 'DOCUMENTACAO_ENVIADA' && (
+        <div className="card" style={{ maxWidth: 720 }}>
+          <SectionTitle>Devolver ao aluno</SectionTitle>
+          <p>Se a documentação estiver inadequada, devolva-a com um parecer. O envio será reaberto.</p>
+          <form onSubmit={returnDoc}>
+            <div className="form-group">
+              <label>Parecer da devolução *</label>
+              <textarea rows={4} value={returnParecer}
+                onChange={(e) => setReturnParecer(e.target.value)} required />
+            </div>
+            <button className="btn btn-ghost" type="submit" disabled={busy}>↩ Devolver ao aluno</button>
+          </form>
         </div>
       )}
 
