@@ -158,6 +158,12 @@
         <p><strong th:text="#{studentOfferDetails.label.discipline}">Disciplina:</strong> <span th:text="${documentation.disciplineName}"></span></p>
         <p><strong th:text="#{studentOfferDetails.label.course}">Curso:</strong> <span th:text="${documentation.disciplineCourse}"></span></p>
         <p><strong th:text="#{studentOfferDetails.label.workload}">Carga horária:</strong> <span th:text="${documentation.workloadHours}"></span> h</p>
+        <div th:if="${documentation.devolucaoParecer != null}" class="documentation-returned">
+            <p><strong th:text="#{studentOfferDetails.returned.title}">Documentação devolvida pelo professor responsável</strong></p>
+            <p th:text="${documentation.devolucaoParecer}"></p>
+            <p><strong th:text="#{studentOfferDetails.returned.date}">Devolvida em</strong>
+                <span th:text="${#temporals.format(documentation.devolvidaAt, 'dd/MM/yyyy HH:mm')}"></span></p>
+        </div>
         <p><a class="secondary" th:href="@{/aluno/ofertas/{id}/documentacao/arquivo(id=${enrollment.id})}"
               target="_blank" th:text="#{studentOfferDetails.openDocPdf}">Abrir PDF da documentação</a></p>
     </div>

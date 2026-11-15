@@ -263,7 +263,9 @@ public class OfferApiMapper {
                 doc.getResponsavelFrequencia(),
                 doc.getResponsavelNota(),
                 doc.getResponsavelNota() != null ? doc.getResponsavelNota().getDisplayName() : null,
-                doc.getResponsavelApprovedAt()
+                doc.getResponsavelApprovedAt(),
+                doc.getDevolucaoParecer(),
+                doc.getDevolvidaAt()
         );
     }
 

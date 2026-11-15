@@ -236,6 +236,25 @@
 
     </form>
 
+    <!-- Mud4 — devolver a documentação ao aluno -->
+    <div class="section-title" th:text="#{analyzeDoc.return.section}">Devolver ao Aluno</div>
+    <p class="subtitle" th:text="#{analyzeDoc.return.hint}"></p>
+
+    <form th:action="@{/professor/responsavel/ofertas/{oId}/alunos/{sId}/devolver-documentacao(oId=${offerStudent.offer.id}, sId=${offerStudent.student.id})}"
+          th:object="${returnForm}"
+          method="post">
+
+        <div class="form-group">
+            <label for="returnParecer" th:text="#{analyzeDoc.return.parecer}">Parecer da devolução *</label>
+            <textarea id="returnParecer" th:field="*{parecer}"></textarea>
+            <p class="error" th:if="${#fields.hasErrors('parecer')}" th:errors="*{parecer}"></p>
+        </div>
+
+        <div class="actions">
+            <button type="submit" class="btn btn-secondary" th:text="#{analyzeDoc.return.submit}">↩ Devolver ao Aluno</button>
+        </div>
+    </form>
+
 </div>
 
 </body>
