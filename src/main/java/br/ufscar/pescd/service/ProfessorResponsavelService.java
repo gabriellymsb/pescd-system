@@ -10,6 +10,7 @@ import br.ufscar.pescd.dto.OfferSummaryResponse;
 import br.ufscar.pescd.dto.ReportDetailsResponse;
 import br.ufscar.pescd.dto.ResponsavelDashboardDTO;
 import br.ufscar.pescd.dto.ResponsibleCloseOfferSummaryResponse;
+import br.ufscar.pescd.dto.ReturnDocumentationFormDTO;
 import br.ufscar.pescd.entity.*;
 import br.ufscar.pescd.enums.OfferStatus;
 import br.ufscar.pescd.enums.StudentOfferStatus;
@@ -306,6 +307,39 @@ public class ProfessorResponsavelService {
             AnalyzeDocumentationFormDTO form
     ) {
         analyzeDocumentation(offerId, studentId, professor, form);
+        return offerApiMapper.toOfferStudentSummary(getEnrollmentForResponsavel(offerId, studentId, professor));
+    }
+
+    // Mud4 — devolve a documentação ao aluno, com parecer, reabrindo o envio.
+    @Transactional
+    public void returnDocumentation(Long offerId, Long studentId, User professor,
+                                    ReturnDocumentationFormDTO form) {
+
+        OfferStudent os = getEnrollmentForResponsavel(offerId, studentId, professor);
+
+        if (os.getStatus() != StudentOfferStatus.DOCUMENTACAO_ENVIADA) {
+            throw new IllegalArgumentException(
+                    "Ação indisponível: o status atual é \""
+                    + os.getStatus().getDisplayName() + "\".");
+        }
+
+        Documentation doc = getDocumentation(os);
+        doc.setDevolucaoParecer(form.getParecer());
+        doc.setDevolvidaAt(LocalDateTime.now());
+        documentationRepository.save(doc);
+
+        changeStatus(os, StudentOfferStatus.NAO_ENVIADO,
+                "Documentação devolvida pelo professor responsável");
+    }
+
+    @Transactional
+    public OfferStudentSummaryResponse returnDocumentationForApi(
+            Long offerId,
+            Long studentId,
+            User professor,
+            ReturnDocumentationFormDTO form
+    ) {
+        returnDocumentation(offerId, studentId, professor, form);
         return offerApiMapper.toOfferStudentSummary(getEnrollmentForResponsavel(offerId, studentId, professor));
     }
 

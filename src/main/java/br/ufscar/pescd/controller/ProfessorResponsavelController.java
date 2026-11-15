@@ -2,6 +2,7 @@ package br.ufscar.pescd.controller;
 
 import br.ufscar.pescd.dto.AnalyzeDocumentationFormDTO;
 import br.ufscar.pescd.dto.ConcludeReportFormDTO;
+import br.ufscar.pescd.dto.ReturnDocumentationFormDTO;
 import br.ufscar.pescd.dto.ResponsavelDashboardDTO;
 import br.ufscar.pescd.entity.*;
 import br.ufscar.pescd.enums.GradeOption;
@@ -189,6 +190,7 @@ public class ProfessorResponsavelController {
         model.addAttribute("statusLogs", professorResponsavelService.getStatusLogs(os));
         model.addAttribute("gradeOptions", GradeOption.values());
         model.addAttribute("form", new AnalyzeDocumentationFormDTO());
+        model.addAttribute("returnForm", new ReturnDocumentationFormDTO());
 
         return "professor/responsavel/analyze-documentation";
     }
@@ -212,6 +214,7 @@ public class ProfessorResponsavelController {
             model.addAttribute("documentation", professorResponsavelService.getDocumentation(os));
             model.addAttribute("statusLogs", professorResponsavelService.getStatusLogs(os));
             model.addAttribute("gradeOptions", GradeOption.values());
+            model.addAttribute("returnForm", new ReturnDocumentationFormDTO());
             return "professor/responsavel/analyze-documentation";
         }
 
@@ -219,6 +222,38 @@ public class ProfessorResponsavelController {
 
         redirectAttributes.addFlashAttribute("successMessage",
                 "Documentação analisada com sucesso.");
+
+        return "redirect:/professor/responsavel/dashboard";
+    }
+
+    // Mud4 — devolver a documentação ao aluno com parecer
+    @PostMapping("/ofertas/{offerId}/alunos/{studentId}/devolver-documentacao")
+    public String returnDocumentation(
+            @PathVariable Long offerId,
+            @PathVariable Long studentId,
+            @Valid @ModelAttribute("returnForm") ReturnDocumentationFormDTO returnForm,
+            BindingResult bindingResult,
+            Model model,
+            Authentication authentication,
+            RedirectAttributes redirectAttributes
+    ) {
+        User professor = resolveUser(authentication);
+
+        if (bindingResult.hasErrors()) {
+            OfferStudent os = professorResponsavelService
+                    .getEnrollmentForResponsavel(offerId, studentId, professor);
+            model.addAttribute("offerStudent", os);
+            model.addAttribute("documentation", professorResponsavelService.getDocumentation(os));
+            model.addAttribute("statusLogs", professorResponsavelService.getStatusLogs(os));
+            model.addAttribute("gradeOptions", GradeOption.values());
+            model.addAttribute("form", new AnalyzeDocumentationFormDTO());
+            return "professor/responsavel/analyze-documentation";
+        }
+
+        professorResponsavelService.returnDocumentation(offerId, studentId, professor, returnForm);
+
+        redirectAttributes.addFlashAttribute("successMessage",
+                "Documentação devolvida ao aluno para novo envio.");
 
         return "redirect:/professor/responsavel/dashboard";
     }

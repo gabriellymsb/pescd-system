@@ -17,6 +17,8 @@ public record DocumentationDetailsResponse(
         Integer responsavelFrequencia,
         GradeOption responsavelNota,
         String responsavelNotaLabel,
-        LocalDateTime responsavelApprovedAt
+        LocalDateTime responsavelApprovedAt,
+        String devolucaoParecer,
+        LocalDateTime devolvidaAt
 ) {
 }

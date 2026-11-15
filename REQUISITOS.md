@@ -174,6 +174,7 @@ O Sistema tem como objetivo automatizar o *workflow* para a contabilização de 
 | **RN-1** | O formulário deve conter os seguintes dados: Nome da instituição onde ministrou a disciplina\* Nome da disciplina\* Curso da disciplina\* Carga horária (em horas) da disciplina\* Arquivo com a documentação comprobatória\* |
 | **RN-3** | O arquivo com a documentação comprobatória deve ser um pdf com no máximo 5mb.  |
 | **RN-4** | O envio com sucesso deve mudar o status do aluno para “documentação enviada”.  |
+| **RN-5 (Mud4)** | Se o professor responsável tiver devolvido a documentação [PR.02], o aluno visualiza o parecer da devolução e a data nos detalhes da oferta e pode realizar um novo envio; o novo envio limpa o parecer da devolução anterior.  |
 
 ## 
 
@@ -267,6 +268,7 @@ O Sistema tem como objetivo automatizar o *workflow* para a contabilização de 
 | **RN-2** | Ao clicar na ação “Analisar Documentação”, o sistema deve apresentar além do nome do aluno, os dados da documentação inseridos na estória **\[AL.03\]** e informações sobre as mudanças de status**.** Estes dados são somente para leitura.  |
 | **RN-3** | O formulário tem os seguintes campos:  Parecer\*  Indicador de frequência\*  (0 a 100%).   Nota\*, das opções A, B, C, D, e E. O formulário também contém os botões Finalizar e Cancelar. O cancelar não faz nada e volta à tela anterior. |
 | **RN-4** | Ao finalizar, o status do aluno muda para “concluído pelo responsável”, os dados preenchidos salvos no BD, e o sistema registra o timestamp da operação.  |
+| **RN-5 (Mud4)** | O sistema deve apresentar também a ação “Devolver ao Aluno”, com um campo Parecer\* obrigatório. Ao devolver, o parecer e o timestamp da devolução são salvos, o status do aluno volta para “não enviado” (reabrindo o envio, conforme [AL.03]) e a mudança é registrada no histórico de status.  |
 
 ## 
 

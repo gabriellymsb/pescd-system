@@ -64,6 +64,15 @@ public class Documentation {
 
     private LocalDateTime responsavelApprovedAt;
 
+    // -------------------------------------------------------------------------
+    // Devolução ao aluno pelo Professor Responsável (Mud4)
+    // -------------------------------------------------------------------------
+
+    @Column(columnDefinition = "TEXT")
+    private String devolucaoParecer;
+
+    private LocalDateTime devolvidaAt;
+
     @PrePersist
     protected void onCreate() {
         this.submittedAt = LocalDateTime.now();

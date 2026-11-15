@@ -4,6 +4,7 @@ import br.ufscar.pescd.dto.AnalyzeDocumentationFormDTO;
 import br.ufscar.pescd.dto.CloseOfferFormDTO;
 import br.ufscar.pescd.dto.ConcludeReportFormDTO;
 import br.ufscar.pescd.dto.DocumentationDetailsResponse;
+import br.ufscar.pescd.dto.ReturnDocumentationFormDTO;
 import br.ufscar.pescd.dto.OfferDetailsResponse;
 import br.ufscar.pescd.dto.OfferStudentDetailsResponse;
 import br.ufscar.pescd.dto.OfferStudentSummaryResponse;
@@ -214,6 +215,18 @@ public class ProfessorResponsavelApiController {
             Authentication authentication
     ) {
         return professorResponsavelService.analyzeDocumentationForApi(
+                offerId, studentId, resolveUser(authentication), form);
+    }
+
+    @PostMapping("/{offerId}/students/{studentId}/documentation/return")
+    @Operation(summary = "Devolver documentação", description = "Devolve a documentação ao aluno com um parecer e reabre o envio.")
+    public OfferStudentSummaryResponse returnDocumentation(
+            @PathVariable Long offerId,
+            @PathVariable Long studentId,
+            @Valid @RequestBody ReturnDocumentationFormDTO form,
+            Authentication authentication
+    ) {
+        return professorResponsavelService.returnDocumentationForApi(
                 offerId, studentId, resolveUser(authentication), form);
     }
 

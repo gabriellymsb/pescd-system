@@ -87,6 +87,12 @@ export default function EnrollmentDetailsPage() {
             <dt>Carga horária</dt><dd>{documentation.workloadHours} h</dd>
             <dt>Enviado em</dt><dd>{formatDateTime(documentation.submittedAt)}</dd>
             <dt>Arquivo</dt><dd>{documentation.fileName}</dd>
+            {documentation.devolucaoParecer && (
+              <>
+                <dt>Devolvida pelo responsável</dt><dd>{documentation.devolucaoParecer}</dd>
+                <dt>Devolvida em</dt><dd>{formatDateTime(documentation.devolvidaAt)}</dd>
+              </>
+            )}
           </dl>
         )}
       </FileCard>
