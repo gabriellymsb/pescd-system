@@ -150,15 +150,13 @@ public class StudentOfferService {
         byte[] content = readPdf(form.getFile());
 
         WorkPlan workPlan = workPlanRepository.findByOfferStudent(enrollment).orElseGet(WorkPlan::new);
-        storageService.delete(workPlan.getFileFid());
         workPlan.setOfferStudent(enrollment);
         workPlan.setDisciplineCode(form.getDisciplineCode());
         workPlan.setDisciplineName(form.getDisciplineName());
         workPlan.setDisciplineCourse(form.getDisciplineCourse());
         workPlan.setFileName(form.getFile().getOriginalFilename());
         workPlan.setContentType(form.getFile().getContentType());
-        workPlan.setFileFid(storageService.store(content, form.getFile().getOriginalFilename(),
-                form.getFile().getContentType()));
+        workPlan.setFileFid(replaceStoredFile(workPlan.getFileFid(), form.getFile(), content));
         workPlanRepository.save(workPlan);
 
         enrollment.setSupervisor(supervisor);
@@ -175,16 +173,16 @@ public class StudentOfferService {
 
         Documentation documentation = documentationRepository.findByOfferStudent(enrollment)
                 .orElseGet(Documentation::new);
-        storageService.delete(documentation.getFileFid());
         documentation.setOfferStudent(enrollment);
         documentation.setInstitutionName(form.getInstitutionName());
         documentation.setDisciplineName(form.getDisciplineName());
         documentation.setDisciplineCourse(form.getDisciplineCourse());
         documentation.setWorkloadHours(form.getWorkloadHours());
+        documentation.setDevolucaoParecer(null);
+        documentation.setDevolvidaAt(null);
         documentation.setFileName(form.getFile().getOriginalFilename());
         documentation.setContentType(form.getFile().getContentType());
-        documentation.setFileFid(storageService.store(content, form.getFile().getOriginalFilename(),
-                form.getFile().getContentType()));
+        documentation.setFileFid(replaceStoredFile(documentation.getFileFid(), form.getFile(), content));
         documentationRepository.save(documentation);
 
         changeStatus(enrollment, StudentOfferStatus.DOCUMENTACAO_ENVIADA, "Documentação enviada");
@@ -199,16 +197,19 @@ public class StudentOfferService {
         byte[] content = readPdf(form.getFile());
 
         Report report = reportRepository.findByOfferStudent(enrollment).orElseGet(Report::new);
-        storageService.delete(report.getFileFid());
         report.setOfferStudent(enrollment);
         report.setFrequency(form.getFrequency());
         report.setFileName(form.getFile().getOriginalFilename());
         report.setContentType(form.getFile().getContentType());
-        report.setFileFid(storageService.store(content, form.getFile().getOriginalFilename(),
-                form.getFile().getContentType()));
+        report.setFileFid(replaceStoredFile(report.getFileFid(), form.getFile(), content));
         reportRepository.save(report);
 
         changeStatus(enrollment, StudentOfferStatus.RELATORIO_ENVIADO, "Relatório final enviado");
+    }
+
+    private String replaceStoredFile(String oldFid, MultipartFile file, byte[] content) {
+        storageService.delete(oldFid);
+        return storageService.store(content, file.getOriginalFilename(), file.getContentType());
     }
 
     private void changeStatus(OfferStudent enrollment, StudentOfferStatus newStatus, String description) {
