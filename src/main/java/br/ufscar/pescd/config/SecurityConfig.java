@@ -8,13 +8,17 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.ExceptionMappingAuthenticationFailureHandler;
 
 import java.io.IOException;
+import java.util.Map;
 
 @Configuration
 public class SecurityConfig {
@@ -67,6 +71,7 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/login")
                         .successHandler(successHandler)
+                        .failureHandler(loginFailureHandler())
                         .permitAll()
                 )
                 .logout(logout -> logout
@@ -97,6 +102,13 @@ public class SecurityConfig {
                 .userDetailsService(customUserDetailsService);
 
         return http.build();
+    }
+
+    AuthenticationFailureHandler loginFailureHandler() {
+        ExceptionMappingAuthenticationFailureHandler handler = new ExceptionMappingAuthenticationFailureHandler();
+        handler.setDefaultFailureUrl("/login?error");
+        handler.setExceptionMappings(Map.of(DisabledException.class.getName(), "/login?blocked"));
+        return handler;
     }
 
     @Bean

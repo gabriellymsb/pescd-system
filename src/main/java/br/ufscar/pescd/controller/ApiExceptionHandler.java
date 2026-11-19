@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +23,8 @@ import java.util.Map;
 
 @RestControllerAdvice(annotations = RestController.class)
 public class ApiExceptionHandler {
+
+    static final String BLOCKED_USER_MESSAGE = "Usuário bloqueado. Procure o administrador do sistema.";
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiErrorResponse> handleValidation(
@@ -80,6 +83,15 @@ public class ApiExceptionHandler {
     ) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(buildResponse(HttpStatus.UNAUTHORIZED, "Nome de usuário ou senha inválidos.", request, null));
+    }
+
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<ApiErrorResponse> handleDisabled(
+            DisabledException ex,
+            HttpServletRequest request
+    ) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(buildResponse(HttpStatus.FORBIDDEN, BLOCKED_USER_MESSAGE, request, null));
     }
 
     @ExceptionHandler(AccessDeniedException.class)

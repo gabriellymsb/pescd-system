@@ -109,6 +109,7 @@
             <th th:text="#{userList.col.email}">E-mail</th>
             <th th:text="#{userList.col.username}">Usuário</th>
             <th th:text="#{userList.col.role}">Perfil</th>
+            <th th:text="#{userList.col.status}">Situação</th>
             <th th:text="#{common.actions}">Ações</th>
         </tr>
         </thead>
@@ -118,9 +119,22 @@
             <td th:text="${user.email}"></td>
             <td th:text="${user.username}"></td>
             <td th:text="${#messages.msg('role.' + user.role.name())}"></td>
+            <td th:text="${user.enabled} ? #{userList.status.active} : #{userList.status.blocked}"></td>
             <td>
                 <div class="actions">
                     <a th:href="@{/admin/users/{id}/edit(id=${user.id})}" class="secondary" th:text="#{common.edit}">Editar</a>
+                    <form th:if="${user.enabled}" th:action="@{/admin/users/{id}/block(id=${user.id})}" method="post">
+                        <button type="submit" class="secondary" th:disabled="${user.username == loggedUsername}"
+                                th:text="#{userList.block}">
+                            Bloquear
+                        </button>
+                    </form>
+                    <form th:unless="${user.enabled}" th:action="@{/admin/users/{id}/unblock(id=${user.id})}" method="post">
+                        <button type="submit" class="primary" th:disabled="${user.username == loggedUsername}"
+                                th:text="#{userList.unblock}">
+                            Desbloquear
+                        </button>
+                    </form>
                     <form th:action="@{/admin/users/{id}/delete(id=${user.id})}" method="post">
                         <button type="submit" class="danger" th:disabled="${user.username == loggedUsername}"
                                 th:text="#{userList.remove}">

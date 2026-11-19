@@ -83,6 +83,10 @@
         Usuário ou senha inválidos.
     </div>
 
+    <div th:if="${param.blocked}" class="error" th:text="#{login.blocked}">
+        Seu usuário está bloqueado. Procure o administrador do sistema.
+    </div>
+
     <div th:if="${param.logout}" class="success" th:text="#{login.loggedOut}">
         Logout realizado com sucesso.
     </div>

@@ -53,6 +53,7 @@ O Sistema tem como objetivo automatizar o *workflow* para a contabilização de 
 | **RN-2** | Mensagens de erro típicas devem ser fornecidas para tentativas inválidas. |
 | **RN-3** | O login com sucesso deve redirecionar o usuário para uma tela adequada a seu perfil. |
 | **RN-4** | O sistema deve tratar adequadamente casos de acúmulo de responsabilidade, por exemplo, professor responsável e também o supervisor.  |
+| **RN-5 (Mud1)** | Um usuário bloqueado pelo administrador [AD.01] não consegue realizar o login e recebe a mensagem de erro “Seu usuário está bloqueado. Procure o administrador do sistema.”, distinta da mensagem de credenciais inválidas.  |
 
 ## 
 
@@ -69,6 +70,7 @@ O Sistema tem como objetivo automatizar o *workflow* para a contabilização de 
 | **RN-2** | O gerenciamento envolve operações CRUD.  |
 | **RN-3** | Não é possível remover seu próprio usuário.  |
 | **RN-4** | O e-mail deve ser único por usuário.  |
+| **RN-5 (Mud1)** | O administrador pode bloquear e desbloquear usuários, exceto o seu próprio usuário. A listagem de usuários exibe a situação (Ativo/Bloqueado) de cada um. Editar um usuário não altera sua situação de bloqueio.  |
 
 ## 
 

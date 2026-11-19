@@ -4,6 +4,7 @@ import br.ufscar.pescd.dto.PublicUserResponse;
 import br.ufscar.pescd.dto.UserForm;
 import br.ufscar.pescd.entity.User;
 import br.ufscar.pescd.enums.UserRole;
+import br.ufscar.pescd.exception.BusinessRuleException;
 import br.ufscar.pescd.exception.DuplicateResourceException;
 import br.ufscar.pescd.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -140,12 +141,36 @@ public class UserService {
         userRepository.delete(user);
     }
 
+    @Transactional
+    public PublicUserResponse block(Long id, String loggedUsername) {
+        return changeEnabled(id, loggedUsername, false);
+    }
+
+    @Transactional
+    public PublicUserResponse unblock(Long id, String loggedUsername) {
+        return changeEnabled(id, loggedUsername, true);
+    }
+
+    private PublicUserResponse changeEnabled(Long id, String loggedUsername, boolean enabled) {
+        User user = findById(id);
+
+        if (user.getUsername().equals(loggedUsername)) {
+            throw new BusinessRuleException("Você não pode bloquear ou desbloquear seu próprio usuário.");
+        }
+
+        user.setEnabled(enabled);
+        return toPublicResponse(userRepository.save(user));
+    }
+
     private void applyForm(User user, UserForm form, boolean creating) {
         user.setFullName(form.getFullName());
         user.setEmail(form.getEmail());
         user.setUsername(form.getUsername());
         user.setRole(form.getRole());
-        user.setEnabled(true);
+
+        if (creating) {
+            user.setEnabled(true);
+        }
 
         if (creating || (form.getPassword() != null && !form.getPassword().isBlank())) {
             user.setPassword(passwordEncoder.encode(form.getPassword()));
