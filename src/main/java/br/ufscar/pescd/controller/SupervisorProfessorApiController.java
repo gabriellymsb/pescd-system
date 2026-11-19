@@ -98,7 +98,7 @@ public class SupervisorProfessorApiController {
     @GetMapping("/{offerId}/students/{studentId}/work-plan/download")
     @Operation(summary = "Baixar plano de trabalho", description = "Retorna o PDF do plano de trabalho do aluno.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Arquivo retornado com sucesso.",
+            @ApiResponse(responseCode = "200", description = ApiDocMessages.FILE_RETURNED,
                     content = @Content(mediaType = "application/pdf",
                             schema = @Schema(type = "string", format = "binary")))
     })
@@ -145,7 +145,7 @@ public class SupervisorProfessorApiController {
     @GetMapping("/{offerId}/students/{studentId}/report/download")
     @Operation(summary = "Baixar relatório", description = "Retorna o PDF do relatório do aluno.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Arquivo retornado com sucesso.",
+            @ApiResponse(responseCode = "200", description = ApiDocMessages.FILE_RETURNED,
                     content = @Content(mediaType = "application/pdf",
                             schema = @Schema(type = "string", format = "binary")))
     })

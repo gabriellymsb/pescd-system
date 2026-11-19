@@ -47,6 +47,8 @@ import java.util.List;
 @SecurityRequirement(name = "sessionAuth")
 public class ProfessorResponsavelApiController {
 
+    private static final String INLINE_FILENAME_PREFIX = "inline; filename=\"";
+
     private final ProfessorResponsavelService professorResponsavelService;
     private final UserRepository userRepository;
     private final SeaweedFsStorageService storageService;
@@ -127,7 +129,7 @@ public class ProfessorResponsavelApiController {
     @GetMapping("/{offerId}/students/{studentId}/work-plan/download")
     @Operation(summary = "Baixar plano de trabalho", description = "Retorna o PDF do plano de trabalho do aluno.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Arquivo retornado com sucesso.",
+            @ApiResponse(responseCode = "200", description = ApiDocMessages.FILE_RETURNED,
                     content = @Content(mediaType = "application/pdf",
                             schema = @Schema(type = "string", format = "binary")))
     })
@@ -144,7 +146,7 @@ public class ProfessorResponsavelApiController {
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(plan.getContentType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "inline; filename=\"" + plan.getFileName() + "\"")
+                        INLINE_FILENAME_PREFIX + plan.getFileName() + "\"")
                 .body(storageService.read(plan.getFileFid()));
     }
 
@@ -174,7 +176,7 @@ public class ProfessorResponsavelApiController {
     @GetMapping("/{offerId}/students/{studentId}/report/download")
     @Operation(summary = "Baixar relatório", description = "Retorna o PDF do relatório do aluno.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Arquivo retornado com sucesso.",
+            @ApiResponse(responseCode = "200", description = ApiDocMessages.FILE_RETURNED,
                     content = @Content(mediaType = "application/pdf",
                             schema = @Schema(type = "string", format = "binary")))
     })
@@ -191,7 +193,7 @@ public class ProfessorResponsavelApiController {
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(report.getContentType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "inline; filename=\"" + report.getFileName() + "\"")
+                        INLINE_FILENAME_PREFIX + report.getFileName() + "\"")
                 .body(storageService.read(report.getFileFid()));
     }
 
@@ -233,7 +235,7 @@ public class ProfessorResponsavelApiController {
     @GetMapping("/{offerId}/students/{studentId}/documentation/download")
     @Operation(summary = "Baixar documentação", description = "Retorna o PDF da documentação comprobatória do aluno.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Arquivo retornado com sucesso.",
+            @ApiResponse(responseCode = "200", description = ApiDocMessages.FILE_RETURNED,
                     content = @Content(mediaType = "application/pdf",
                             schema = @Schema(type = "string", format = "binary")))
     })
@@ -250,7 +252,7 @@ public class ProfessorResponsavelApiController {
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(doc.getContentType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "inline; filename=\"" + doc.getFileName() + "\"")
+                        INLINE_FILENAME_PREFIX + doc.getFileName() + "\"")
                 .body(storageService.read(doc.getFileFid()));
     }
 

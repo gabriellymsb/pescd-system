@@ -104,7 +104,7 @@ public class StudentOfferApiController {
     @GetMapping("/{id}/plano/arquivo")
     @Operation(summary = "Baixar plano de trabalho", description = "Retorna o PDF do plano de trabalho associado à inscrição.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Arquivo retornado com sucesso.",
+            @ApiResponse(responseCode = "200", description = ApiDocMessages.FILE_RETURNED,
                     content = @Content(mediaType = "application/pdf",
                             schema = @Schema(type = "string", format = "binary"))),
             @ApiResponse(responseCode = "404", description = "Plano não encontrado.")
@@ -121,7 +121,7 @@ public class StudentOfferApiController {
     @GetMapping("/{id}/documentacao/arquivo")
     @Operation(summary = "Baixar documentação", description = "Retorna o PDF da documentação comprobatória associada à inscrição.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Arquivo retornado com sucesso.",
+            @ApiResponse(responseCode = "200", description = ApiDocMessages.FILE_RETURNED,
                     content = @Content(mediaType = "application/pdf",
                             schema = @Schema(type = "string", format = "binary"))),
             @ApiResponse(responseCode = "404", description = "Documentação não encontrada.")
@@ -138,7 +138,7 @@ public class StudentOfferApiController {
     @GetMapping("/{id}/relatorio/arquivo")
     @Operation(summary = "Baixar relatório", description = "Retorna o PDF do relatório final associado à inscrição.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Arquivo retornado com sucesso.",
+            @ApiResponse(responseCode = "200", description = ApiDocMessages.FILE_RETURNED,
                     content = @Content(mediaType = "application/pdf",
                             schema = @Schema(type = "string", format = "binary"))),
             @ApiResponse(responseCode = "404", description = "Relatório não encontrado.")
