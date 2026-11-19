@@ -2,6 +2,7 @@ package br.ufscar.pescd.controller;
 
 import br.ufscar.pescd.dto.UserForm;
 import br.ufscar.pescd.enums.UserRole;
+import br.ufscar.pescd.exception.BusinessRuleException;
 import br.ufscar.pescd.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
@@ -98,6 +99,38 @@ public class AdminUserController {
             userService.delete(id, authentication.getName());
             redirectAttributes.addFlashAttribute("successMessage", "Usuário removido com sucesso.");
         } catch (IllegalArgumentException ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+        }
+
+        return "redirect:/admin/users";
+    }
+
+    @PostMapping("/{id}/block")
+    public String block(
+            @PathVariable Long id,
+            Authentication authentication,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            userService.block(id, authentication.getName());
+            redirectAttributes.addFlashAttribute("successMessage", "Usuário bloqueado com sucesso.");
+        } catch (BusinessRuleException ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+        }
+
+        return "redirect:/admin/users";
+    }
+
+    @PostMapping("/{id}/unblock")
+    public String unblock(
+            @PathVariable Long id,
+            Authentication authentication,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            userService.unblock(id, authentication.getName());
+            redirectAttributes.addFlashAttribute("successMessage", "Usuário desbloqueado com sucesso.");
+        } catch (BusinessRuleException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
         }
 

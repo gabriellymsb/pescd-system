@@ -121,4 +121,38 @@ public class AdminUserApiController {
         userService.delete(id, authentication.getName());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
+    @PostMapping("/{id}/block")
+    @Operation(summary = "Bloquear usuário", description = "Bloqueia um usuário, impedindo o login. Não é possível bloquear o próprio usuário autenticado.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Usuário bloqueado com sucesso.",
+                    content = @Content(schema = @Schema(implementation = PublicUserResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Tentativa de bloquear o próprio usuário.",
+                    content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado.",
+                    content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    public PublicUserResponse block(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        return userService.block(id, authentication.getName());
+    }
+
+    @PostMapping("/{id}/unblock")
+    @Operation(summary = "Desbloquear usuário", description = "Desbloqueia um usuário, permitindo novamente o login. Não é possível desbloquear o próprio usuário autenticado.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Usuário desbloqueado com sucesso.",
+                    content = @Content(schema = @Schema(implementation = PublicUserResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Tentativa de desbloquear o próprio usuário.",
+                    content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado.",
+                    content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    public PublicUserResponse unblock(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        return userService.unblock(id, authentication.getName());
+    }
 }

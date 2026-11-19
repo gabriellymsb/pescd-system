@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../api/client.js';
+import { useAuth } from '../../auth/AuthContext.jsx';
 import { ErrorMessage, Loading, SuccessMessage } from '../../components/Feedback.jsx';
 
 const ROLES = [
@@ -13,6 +14,7 @@ const EMPTY = { id: null, fullName: '', email: '', username: '', password: '', r
 
 // AD.01 - CRUD administrativo de usuários.
 export default function UsersPage() {
+  const { user: loggedUser } = useAuth();
   const [users, setUsers] = useState(null);
   const [form, setForm] = useState(EMPTY);
   const [error, setError] = useState('');
@@ -74,6 +76,18 @@ export default function UsersPage() {
     }
   }
 
+  async function toggleBlock(user) {
+    const action = user.enabled ? 'block' : 'unblock';
+    setError(''); setMessage('');
+    try {
+      await api.post(`/api/admin/users/${user.id}/${action}`);
+      setMessage(user.enabled ? 'Usuário bloqueado.' : 'Usuário desbloqueado.');
+      load();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
   return (
     <div>
       <div className="page-header">
@@ -91,7 +105,7 @@ export default function UsersPage() {
           {!users ? <Loading /> : (
             <table>
               <thead>
-                <tr><th>Nome</th><th>Usuário</th><th>Perfil</th><th></th></tr>
+                <tr><th>Nome</th><th>Usuário</th><th>Perfil</th><th>Situação</th><th></th></tr>
               </thead>
               <tbody>
                 {users.map((u) => (
@@ -99,8 +113,16 @@ export default function UsersPage() {
                     <td>{u.fullName}<br /><span className="muted" style={{ fontSize: 12 }}>{u.email}</span></td>
                     <td>{u.username}</td>
                     <td>{u.role}</td>
+                    <td>{u.enabled ? 'Ativo' : 'Bloqueado'}</td>
                     <td>
                       <button className="btn btn-ghost btn-sm" onClick={() => edit(u)}>Editar</button>{' '}
+                      <button
+                        className="btn btn-ghost btn-sm"
+                        onClick={() => toggleBlock(u)}
+                        disabled={loggedUser?.username === u.username}
+                      >
+                        {u.enabled ? 'Bloquear' : 'Desbloquear'}
+                      </button>{' '}
                       <button className="btn btn-danger btn-sm" onClick={() => remove(u)}>Remover</button>
                     </td>
                   </tr>
