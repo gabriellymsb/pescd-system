@@ -4,6 +4,8 @@ import { api } from '../../api/client.js';
 import { formatDate } from '../../utils/format.js';
 import { ErrorMessage, Loading, StatusBadge } from '../../components/Feedback.jsx';
 
+const CLOSABLE_STATUSES = ['EM_ANDAMENTO', 'EM_ATRASO'];
+
 // Ação contextual disponível para cada aluno, conforme o status e o papel.
 function contextualAction(role, status) {
   if (role === 'supervisor') {
@@ -56,7 +58,9 @@ export default function OffersWithStudents({
           {(offerLink || closeLink) && (
             <div className="form-actions" style={{ marginTop: 12 }}>
               {offerLink && <Link className="btn btn-ghost btn-sm" to={offerLink(item.offer.id)}>Ver oferta</Link>}
-              {closeLink && <Link className="btn btn-sm" to={closeLink(item.offer.id)}>Encerrar oferta</Link>}
+              {closeLink && CLOSABLE_STATUSES.includes(item.offer.status) && (
+                <Link className="btn btn-sm" to={closeLink(item.offer.id)}>Encerrar oferta</Link>
+              )}
             </div>
           )}
 
