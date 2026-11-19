@@ -31,6 +31,8 @@ import br.ufscar.pescd.repository.WorkPlanRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.security.access.AccessDeniedException;
 
 import java.util.List;
@@ -820,18 +822,37 @@ class ProfessorResponsavelServiceTest {
         assertEquals(OfferStatus.AGUARDANDO_ENCERRAMENTO_SECRETARIO, offer.getStatus());
     }
 
-    @Test
-    @DisplayName("Oferta já concluída volta a aguardar encerramento")
-    void ofertaConcluida_encerramentoReabreOferta() {
-        // BUG: closeOffer não checa o status atual da oferta; CONCLUIDA volta para AGUARDANDO_ENCERRAMENTO_SECRETARIO (viola RNG-4)
-        offer.setStatus(OfferStatus.CONCLUIDA);
+    @ParameterizedTest
+    @EnumSource(value = OfferStatus.class, names = {"CONCLUIDA", "AGUARDANDO_ENCERRAMENTO_SECRETARIO"})
+    @DisplayName("Oferta concluída ou aguardando o secretário não pode ser encerrada de novo")
+    void ofertaForaDeAndamento_encerrarLancaIllegalArgumentException(OfferStatus status) {
+        offer.setStatus(status);
+        offer.setLessonsLearned("Lições originais");
         ofertaExiste();
 
-        when(offerStudentRepository.findByOffer(offer)).thenReturn(List.of());
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> service.closeOffer(10L, responsavel, "Novas lições"));
+
+        assertEquals("A oferta não está em andamento e não pode ser encerrada.", ex.getMessage());
+        assertEquals(status, offer.getStatus());
+        assertEquals("Lições originais", offer.getLessonsLearned());
+        assertNull(offer.getClosureRequestedAt());
+        verify(offerRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Oferta em atraso pode ser encerrada")
+    void ofertaEmAtraso_encerramentoEhPermitido() {
+        offer.setStatus(OfferStatus.EM_ATRASO);
+        ofertaExiste();
+        OfferStudent concluido = criarInscricao(offer, StudentOfferStatus.CONCLUIDO_RESPONSAVEL, "A");
+
+        when(offerStudentRepository.findByOffer(offer)).thenReturn(List.of(concluido));
 
         service.closeOffer(10L, responsavel, "x");
 
         assertEquals(OfferStatus.AGUARDANDO_ENCERRAMENTO_SECRETARIO, offer.getStatus());
+        verify(offerRepository).save(offer);
     }
 
     @Test
@@ -879,6 +900,20 @@ class ProfessorResponsavelServiceTest {
         ResponsibleCloseOfferSummaryResponse resultado = service.getCloseOfferSummaryForApi(10L, responsavel);
 
         assertSame(resposta, resultado);
+    }
+
+    @Test
+    @DisplayName("Resumo indica que não pode encerrar oferta já concluída")
+    void ofertaConcluida_resumoIndicaQueNaoPodeEncerrar() {
+        offer.setStatus(OfferStatus.CONCLUIDA);
+        ofertaExiste();
+        List<OfferStudent> alunos = List.of(criarInscricao(offer, StudentOfferStatus.CONCLUIDO_RESPONSAVEL, "A"));
+        ResponsibleCloseOfferSummaryResponse resposta = mock(ResponsibleCloseOfferSummaryResponse.class);
+
+        when(offerStudentRepository.findByOffer(offer)).thenReturn(alunos);
+        when(offerApiMapper.toResponsibleCloseSummary(offer, alunos, false)).thenReturn(resposta);
+
+        assertSame(resposta, service.getCloseOfferSummaryForApi(10L, responsavel));
     }
 
     @Test

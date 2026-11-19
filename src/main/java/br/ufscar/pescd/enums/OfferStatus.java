@@ -14,4 +14,8 @@ public enum OfferStatus {
             case EM_ATRASO -> "Em atraso";
         };
     }
+
+    public boolean acceptsClosureRequest() {
+        return this == EM_ANDAMENTO || this == EM_ATRASO;
+    }
 }

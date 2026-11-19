@@ -18,4 +18,13 @@ class OfferStatusTest {
         assertEquals("Concluída", OfferStatus.CONCLUIDA.getDisplayName());
         assertEquals("Em atraso", OfferStatus.EM_ATRASO.getDisplayName());
     }
+
+    @Test
+    @DisplayName("Só ofertas em andamento ou em atraso aceitam pedido de encerramento")
+    void apenasStatusAbertos_aceitamPedidoDeEncerramento() {
+        assertTrue(OfferStatus.EM_ANDAMENTO.acceptsClosureRequest());
+        assertTrue(OfferStatus.EM_ATRASO.acceptsClosureRequest());
+        assertFalse(OfferStatus.AGUARDANDO_ENCERRAMENTO_SECRETARIO.acceptsClosureRequest());
+        assertFalse(OfferStatus.CONCLUIDA.acceptsClosureRequest());
+    }
 }
