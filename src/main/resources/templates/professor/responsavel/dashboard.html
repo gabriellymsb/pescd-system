@@ -173,8 +173,7 @@
                 Ver Oferta
             </a>
 
-            <a th:if="${item.offer.status.acceptsClosureRequest()}"
-               th:href="@{/professor/responsavel/ofertas/{id}/encerrar(id=${item.offer.id})}"
+            <a th:href="@{/professor/responsavel/ofertas/{id}/encerrar(id=${item.offer.id})}"
                class="btn btn-primary" th:text="#{respDashboard.closeOffer}">
                 Encerrar Oferta
             </a>

@@ -218,7 +218,7 @@ public class ProfessorResponsavelService {
     public ResponsibleCloseOfferSummaryResponse getCloseOfferSummaryForApi(Long offerId, User professor) {
         Offer offer = getOfferForResponsible(offerId, professor);
         List<OfferStudent> students = offerStudentRepository.findByOffer(offer);
-        return offerApiMapper.toResponsibleCloseSummary(offer, students, canRequestClosure(offer, students));
+        return offerApiMapper.toResponsibleCloseSummary(offer, students, canRequestClosure(students));
     }
 
     @Transactional
@@ -243,12 +243,6 @@ public class ProfessorResponsavelService {
         if (!offer.getResponsibleProfessor().getId().equals(professor.getId())) {
             throw new IllegalArgumentException(
                     "Você não é o responsável por esta oferta."
-            );
-        }
-
-        if (!offer.getStatus().acceptsClosureRequest()) {
-            throw new IllegalArgumentException(
-                    "A oferta não está em andamento e não pode ser encerrada."
             );
         }
 
@@ -376,9 +370,8 @@ public class ProfessorResponsavelService {
         return offer;
     }
 
-    private boolean canRequestClosure(Offer offer, List<OfferStudent> students) {
-        return offer.getStatus().acceptsClosureRequest()
-                && students.stream()
+    private boolean canRequestClosure(List<OfferStudent> students) {
+        return students.stream()
                 .allMatch(s -> s.getStatus() == StudentOfferStatus.CONCLUIDO_RESPONSAVEL);
     }
 }
