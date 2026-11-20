@@ -270,11 +270,6 @@ public class SecretaryOfferService {
     }
 
     @Transactional
-    public void closeOffer(Long id) {
-        closeOffer(id, null);
-    }
-
-    @Transactional
     public OfferSummaryResponse closeOfferForApi(Long id, String secretaryUsername) {
         return offerApiMapper.toOfferSummary(closeOffer(id, secretaryUsername));
     }
