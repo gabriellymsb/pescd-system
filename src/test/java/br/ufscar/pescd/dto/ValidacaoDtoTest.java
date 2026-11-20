@@ -255,6 +255,35 @@ class ValidacaoDtoTest {
         return f;
     }
 
+    // PCE (Mud3): parecer de reprovação de relatório -> nulo, vazio e só espaços inválidos; preenchido válido
+    @Test
+    @DisplayName("Parecer de reprovação de relatório em branco é rejeitado")
+    void reprovacaoRelatorioSemParecer_umaViolacaoPorParticao() {
+
+        RejectReportFormDTO nulo = reprovacao(null);
+        RejectReportFormDTO vazio = reprovacao("");
+        RejectReportFormDTO espacos = reprovacao("   ");
+
+        assertEquals(1, validator.validate(nulo).size());
+        assertEquals(1, validator.validate(vazio).size());
+        assertEquals(1, validator.validate(espacos).size());
+    }
+
+    @Test
+    @DisplayName("Parecer de reprovação de relatório preenchido é aceito")
+    void reprovacaoRelatorioComParecer_semViolacoes() {
+
+        RejectReportFormDTO form = reprovacao("Corrigir apontamentos");
+
+        assertTrue(validator.validate(form).isEmpty());
+    }
+
+    RejectReportFormDTO reprovacao(String parecer) {
+        RejectReportFormDTO f = new RejectReportFormDTO();
+        f.setParecer(parecer);
+        return f;
+    }
+
     // PCE (bug #Q): o encerramento so vale com confirm=true; null e false violam o contrato
     // que o front-end passou a respeitar ao enviar { confirm: true }.
     @Test

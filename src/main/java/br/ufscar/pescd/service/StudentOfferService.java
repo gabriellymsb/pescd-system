@@ -202,6 +202,8 @@ public class StudentOfferService {
         report.setFileName(form.getFile().getOriginalFilename());
         report.setContentType(form.getFile().getContentType());
         report.setFileFid(replaceStoredFile(report.getFileFid(), form.getFile(), content));
+        report.setReprovacaoParecer(null);
+        report.setReprovadoAt(null);
         reportRepository.save(report);
 
         changeStatus(enrollment, StudentOfferStatus.RELATORIO_ENVIADO, "Relatório final enviado");

@@ -192,6 +192,7 @@ O Sistema tem como objetivo automatizar o *workflow* para a contabilização de 
 | **RN-1** | A tela apresenta dados (leitura) sobre a oferta, o plano enviado, e mudanças de status.    O formulário deve conter os seguintes dados: Indicador de frequência\* (0 a 100%) Arquivo com o relatório\* |
 | **RN-2** | O arquivo com o relatório deve ser um pdf com no máximo 5mb.  |
 | **RN-4** | O envio com sucesso deve mudar o status do aluno para “relatório enviado”.  |
+| **RN-5 (Mud3)** | Se o professor supervisor tiver reprovado o relatório [PS.03], o aluno visualiza o parecer da reprovação e a data nos detalhes da oferta e pode realizar um novo envio; o novo envio limpa o parecer de reprovação anterior.  |
 
 ## 
 
@@ -238,6 +239,7 @@ O Sistema tem como objetivo automatizar o *workflow* para a contabilização de 
 | **RN-2** | Ao clicar na ação “Aprovar Relatório”, o sistema deve apresentar além do nome do aluno, os dados do plano inseridos na estória **\[AL.02\]**, o relatório inserido na estória **\[AL.04\]**, informações sobre as mudanças de status**.** Estes dados são somente para leitura.  |
 | **RN-3** | O formulário tem os seguintes campos:  Parecer\*  Indicador de frequência\* \- vem o valor preenchido do aluno, mas pode ser alterado.   Sugestão de Nota\*, das opções A, B, C, D, e E. O formulário também contém os botões Aprovar e Cancelar. O cancelar não faz nada e volta à tela anterior. |
 | **RN-4** | Ao aprovar, o status do aluno muda para “relatório aprovado pelo supervisor”, os dados preenchidos salvos no BD, e o sistema registra o timestamp da operação.  |
+| **RN-5 (Mud3)** | O sistema deve apresentar também a ação “Reprovar Relatório”, com um campo Parecer* obrigatório. Ao reprovar, o parecer e o timestamp da reprovação são salvos, o status do aluno volta para “plano aprovado” (reabrindo o envio, conforme [AL.04]) e a mudança é registrada no histórico de status.  |
 
 ## 
 

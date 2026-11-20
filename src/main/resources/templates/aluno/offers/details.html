@@ -171,6 +171,12 @@
     <div class="card" th:if="${report != null}">
         <h2 th:text="#{studentOfferDetails.report}">Relatório final</h2>
         <p><strong th:text="#{studentOfferDetails.label.frequency}">Frequência:</strong> <span th:text="${report.frequency}"></span>%</p>
+        <div th:if="${report.reprovacaoParecer != null}" class="documentation-returned">
+            <p><strong th:text="#{studentOfferDetails.reportRejected.title}">Relatório reprovado pelo professor supervisor</strong></p>
+            <p th:text="${report.reprovacaoParecer}"></p>
+            <p><strong th:text="#{studentOfferDetails.reportRejected.date}">Reprovado em</strong>
+                <span th:text="${#temporals.format(report.reprovadoAt, 'dd/MM/yyyy HH:mm')}"></span></p>
+        </div>
         <p><a class="secondary" th:href="@{/aluno/ofertas/{id}/relatorio/arquivo(id=${enrollment.id})}"
               target="_blank" th:text="#{studentOfferDetails.openReportPdf}">Abrir PDF do relatório</a></p>
     </div>

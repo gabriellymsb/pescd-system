@@ -5,6 +5,7 @@ import br.ufscar.pescd.dto.ApproveReportFormDTO;
 import br.ufscar.pescd.dto.OfferDetailsResponse;
 import br.ufscar.pescd.dto.OfferStudentDetailsResponse;
 import br.ufscar.pescd.dto.OfferStudentSummaryResponse;
+import br.ufscar.pescd.dto.RejectReportFormDTO;
 import br.ufscar.pescd.dto.ReportDetailsResponse;
 import br.ufscar.pescd.dto.SupervisorDashboardDTO;
 import br.ufscar.pescd.dto.WorkPlanDetailsResponse;
@@ -190,6 +191,38 @@ public class SupervisorProfessorService {
             ApproveReportFormDTO form
     ) {
         approveReport(offerId, studentId, professor, form);
+        return offerApiMapper.toOfferStudentSummary(getEnrollmentForSupervisor(offerId, studentId, professor));
+    }
+
+    // Mud3 — reprova o relatório do aluno com parecer, reabrindo para novo envio
+    @Transactional
+    public void rejectReport(Long offerId, Long studentId, User professor, RejectReportFormDTO form) {
+
+        OfferStudent os = getEnrollmentForSupervisor(offerId, studentId, professor);
+
+        if (os.getStatus() != StudentOfferStatus.RELATORIO_ENVIADO) {
+            throw new IllegalArgumentException(
+                    "Ação indisponível: o status atual é \""
+                    + os.getStatus().getDisplayName() + "\".");
+        }
+
+        Report report = getReport(os);
+        report.setReprovacaoParecer(form.getParecer());
+        report.setReprovadoAt(LocalDateTime.now());
+        reportRepository.save(report);
+
+        changeStatus(os, StudentOfferStatus.PLANO_APROVADO,
+                "Relatório reprovado pelo professor supervisor");
+    }
+
+    @Transactional
+    public OfferStudentSummaryResponse rejectReportForApi(
+            Long offerId,
+            Long studentId,
+            User professor,
+            RejectReportFormDTO form
+    ) {
+        rejectReport(offerId, studentId, professor, form);
         return offerApiMapper.toOfferStudentSummary(getEnrollmentForSupervisor(offerId, studentId, professor));
     }
 

@@ -303,6 +303,25 @@
 
     </form>
 
+    <!-- Mud3 — reprovar o relatório do aluno -->
+    <div class="section-title" th:text="#{approveReport.reject.section}">Reprovar Relatório</div>
+    <p class="subtitle" th:text="#{approveReport.reject.hint}">Se o relatório estiver insatisfatório, reprove-o com um parecer. O envio será reaberto para o aluno.</p>
+
+    <form th:action="@{/professor/supervisor/ofertas/{oId}/alunos/{sId}/reprovar-relatorio(oId=${offerStudent.offer.id}, sId=${offerStudent.student.id})}"
+          th:object="${rejectForm}"
+          method="post">
+
+        <div class="form-group">
+            <label for="rejectParecer" th:text="#{approveReport.reject.parecer}">Parecer da reprovação *</label>
+            <textarea id="rejectParecer" th:field="*{parecer}"></textarea>
+            <p class="error" th:if="${#fields.hasErrors('parecer')}" th:errors="*{parecer}"></p>
+        </div>
+
+        <div class="actions">
+            <button type="submit" class="btn btn-secondary" th:text="#{approveReport.reject.submit}">✕ Reprovar Relatório</button>
+        </div>
+    </form>
+
 </div>
 
 </body>
