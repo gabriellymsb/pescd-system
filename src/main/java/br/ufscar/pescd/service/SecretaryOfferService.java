@@ -1,30 +1,28 @@
 package br.ufscar.pescd.service;
 
-import br.ufscar.pescd.entity.OfferStudentStatusLog;
-import br.ufscar.pescd.repository.OfferStudentStatusLogRepository;
+import br.ufscar.pescd.dto.ImportStudentsResponse;
 import br.ufscar.pescd.dto.OfferDetailsResponse;
 import br.ufscar.pescd.dto.OfferForm;
 import br.ufscar.pescd.dto.OfferStudentDetailsResponse;
 import br.ufscar.pescd.dto.OfferSummaryResponse;
-import br.ufscar.pescd.dto.ImportStudentsResponse;
 import br.ufscar.pescd.dto.SecretaryCloseOfferPreviewResponse;
 import br.ufscar.pescd.dto.StudentForm;
 import br.ufscar.pescd.dto.UserSummaryResponse;
 import br.ufscar.pescd.entity.Offer;
 import br.ufscar.pescd.entity.OfferStudent;
+import br.ufscar.pescd.entity.StatusChangeLog;
 import br.ufscar.pescd.entity.User;
 import br.ufscar.pescd.enums.OfferStatus;
 import br.ufscar.pescd.enums.StudentOfferStatus;
 import br.ufscar.pescd.enums.UserRole;
 import br.ufscar.pescd.repository.OfferRepository;
 import br.ufscar.pescd.repository.OfferStudentRepository;
+import br.ufscar.pescd.repository.StatusChangeLogRepository;
 import br.ufscar.pescd.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import br.ufscar.pescd.entity.StatusChangeLog;
-import br.ufscar.pescd.repository.StatusChangeLogRepository;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -115,11 +113,8 @@ public class SecretaryOfferService {
 
     @Transactional(readOnly = true)
     public List<StatusChangeLog> getStudentLogs(Long offerStudentId) {
-
         OfferStudent offerStudent = getOfferStudent(offerStudentId);
-
-        return statusChangeLogRepository
-                .findByOfferStudentOrderByChangedAtAsc(offerStudent);
+        return statusChangeLogRepository.findByOfferStudentOrderByChangedAtAsc(offerStudent);
     }
 
     @Transactional(readOnly = true)
@@ -189,14 +184,7 @@ public class SecretaryOfferService {
             if (userRepository.existsByUsername(form.getEmail())) {
                 throw new IllegalArgumentException("Já existe um usuário com este e-mail.");
             }
-            student = new User();
-            student.setFullName(form.getFullName());
-            student.setEmail(form.getEmail());
-            student.setUsername(form.getEmail());
-            student.setPassword(passwordEncoder.encode(form.getRa()));
-            student.setRole(UserRole.ALUNO);
-            student.setEnabled(true);
-            student = userRepository.save(student);
+            student = createStudentAccount(form.getFullName(), form.getEmail(), form.getRa());
         } else if (student.getRole() != UserRole.ALUNO) {
             throw new IllegalArgumentException("O e-mail informado pertence a um usuário que não é aluno.");
         }
@@ -231,32 +219,9 @@ public class SecretaryOfferService {
                     continue;
                 }
 
-                String[] columns = line.split(",", -1);
-                if (columns.length < 3) {
-                    throw new IllegalArgumentException(
-                            "Linha " + lineNumber + " inválida: esperado RA,NOME_COMPLETO,EMAIL.");
-                }
-
-                String ra = columns[0].trim();
-                String fullName = columns[1].trim();
-                String email = columns[2].trim();
-
-                if (ra.isEmpty() || fullName.isEmpty() || email.isEmpty()) {
-                    throw new IllegalArgumentException(
-                            "Linha " + lineNumber + " possui campos vazios.");
-                }
-
-                User student = userRepository.findByEmail(email).orElse(null);
-                if (student == null) {
-                    student = new User();
-                    student.setFullName(fullName);
-                    student.setEmail(email);
-                    student.setUsername(email);
-                    student.setPassword(passwordEncoder.encode(ra));
-                    student.setRole(UserRole.ALUNO);
-                    student.setEnabled(true);
-                    student = userRepository.save(student);
-                }
+                CsvStudentRow row = parseCsvStudentRow(line, lineNumber);
+                User student = userRepository.findByEmail(row.email())
+                        .orElseGet(() -> createStudentAccount(row.fullName(), row.email(), row.ra()));
 
                 if (enroll(offer, student)) {
                     enrolled++;
@@ -300,13 +265,41 @@ public class SecretaryOfferService {
         return offerRepository.save(offer);
     }
 
-
-
     @Transactional(readOnly = true)
     public OfferStudent getOfferStudent(Long id) {
         return offerStudentRepository.findById(id)
                 .orElseThrow(() ->
                         new IllegalArgumentException("Aluno da oferta não encontrado."));
+    }
+
+    private User createStudentAccount(String fullName, String email, String ra) {
+        User student = new User();
+        student.setFullName(fullName);
+        student.setEmail(email);
+        student.setUsername(email);
+        student.setPassword(passwordEncoder.encode(ra));
+        student.setRole(UserRole.ALUNO);
+        student.setEnabled(true);
+        return userRepository.save(student);
+    }
+
+    private CsvStudentRow parseCsvStudentRow(String line, int lineNumber) {
+        String[] columns = line.split(",", -1);
+        if (columns.length < 3) {
+            throw new IllegalArgumentException(
+                    "Linha " + lineNumber + " inválida: esperado RA,NOME_COMPLETO,EMAIL.");
+        }
+
+        String ra = columns[0].trim();
+        String fullName = columns[1].trim();
+        String email = columns[2].trim();
+
+        if (ra.isEmpty() || fullName.isEmpty() || email.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Linha " + lineNumber + " possui campos vazios.");
+        }
+
+        return new CsvStudentRow(ra, fullName, email);
     }
 
     private boolean enroll(Offer offer, User student) {
@@ -325,5 +318,8 @@ public class SecretaryOfferService {
         if (offer.getStatus() == OfferStatus.CONCLUIDA) {
             throw new IllegalArgumentException("A oferta está concluída e não pode mais ser alterada.");
         }
+    }
+
+    private record CsvStudentRow(String ra, String fullName, String email) {
     }
 }
