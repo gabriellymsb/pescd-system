@@ -951,19 +951,19 @@ class SecretaryOfferServiceTest {
     }
 
     @Test
-    @DisplayName("closeOffer sem username não registra quem encerrou")
-    void encerrarSemUsername_naoRegistraUsuarioQueEncerrou() {
-        // BUG (S.04 RN-2): closeOffer(Long) delega com username nulo e closedBy permanece nulo
+    @DisplayName("closeOffer com username nulo não registra quem encerrou")
+    void encerrarComUsernameNulo_naoRegistraUsuarioQueEncerrou() {
+        // Ramo: closeOffer com secretaryUsername nulo (preserva cobertura do ramo defensivo)
         offer.setStatus(OfferStatus.AGUARDANDO_ENCERRAMENTO_SECRETARIO);
         ofertaExiste();
 
         when(offerRepository.save(offer)).thenReturn(offer);
 
-        service.closeOffer(1L);
+        Offer encerrada = service.closeOffer(1L, null);
 
-        assertEquals(OfferStatus.CONCLUIDA, offer.getStatus());
-        assertNotNull(offer.getClosedAt());
-        assertNull(offer.getClosedBy());
+        assertEquals(OfferStatus.CONCLUIDA, encerrada.getStatus());
+        assertNotNull(encerrada.getClosedAt());
+        assertNull(encerrada.getClosedBy());
 
         verify(userRepository, never()).findByUsername(any());
     }
@@ -974,14 +974,16 @@ class SecretaryOfferServiceTest {
         // Ramo: closeOfferForApi delega ao mapper
         offer.setStatus(OfferStatus.AGUARDANDO_ENCERRAMENTO_SECRETARIO);
         ofertaExiste();
+        User secretario = criarUsuario(6L, "sec", UserRole.SECRETARIO);
         OfferSummaryResponse resumo = mock(OfferSummaryResponse.class);
 
-        when(userRepository.findByUsername("sec")).thenReturn(Optional.of(criarUsuario(6L, "sec", UserRole.SECRETARIO)));
+        when(userRepository.findByUsername("sec")).thenReturn(Optional.of(secretario));
         when(offerRepository.save(offer)).thenReturn(offer);
         when(offerApiMapper.toOfferSummary(offer)).thenReturn(resumo);
 
         OfferSummaryResponse resultado = service.closeOfferForApi(1L, "sec");
 
         assertSame(resumo, resultado);
+        assertSame(secretario, offer.getClosedBy());
     }
 }

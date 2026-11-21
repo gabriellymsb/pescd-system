@@ -151,11 +151,12 @@ public class SecretaryOfferController {
     @PostMapping("/{id}/close")
     public String closeOffer(
             @PathVariable Long id,
+            Authentication authentication,
             RedirectAttributes redirectAttributes
     ) {
 
         try {
-            secretaryOfferService.closeOffer(id);
+            secretaryOfferService.closeOffer(id, authentication.getName());
             redirectAttributes.addFlashAttribute(
                     "successMessage",
                     "Oferta encerrada com sucesso."

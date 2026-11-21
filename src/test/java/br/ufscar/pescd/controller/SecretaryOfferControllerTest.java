@@ -308,11 +308,11 @@ class SecretaryOfferControllerTest {
     @DisplayName("Encerrar oferta redireciona com mensagem de sucesso")
     void encerrarOferta_redirecionaComSucesso() {
         // Ramo: closeOffer sem exceção
-        String view = controller.closeOffer(1L, redirect);
+        String view = controller.closeOffer(1L, auth, redirect);
 
         assertEquals("redirect:/secretary/offers", view);
         assertEquals("Oferta encerrada com sucesso.", redirect.getFlashAttributes().get("successMessage"));
-        verify(service, times(1)).closeOffer(1L);
+        verify(service, times(1)).closeOffer(1L, "secretaria");
     }
 
     @Test
@@ -320,11 +320,12 @@ class SecretaryOfferControllerTest {
     void encerrarOfertaRejeitadaPeloService_redirecionaComErro() {
         // Ramo: catch IllegalArgumentException
         doThrow(new IllegalArgumentException("Oferta não aguarda encerramento."))
-                .when(service).closeOffer(1L);
+                .when(service).closeOffer(1L, "secretaria");
 
-        String view = controller.closeOffer(1L, redirect);
+        String view = controller.closeOffer(1L, auth, redirect);
 
         assertEquals("redirect:/secretary/offers", view);
         assertEquals("Oferta não aguarda encerramento.", redirect.getFlashAttributes().get("errorMessage"));
+        verify(service, times(1)).closeOffer(1L, "secretaria");
     }
 }
