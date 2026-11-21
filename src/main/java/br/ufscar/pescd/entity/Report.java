@@ -60,6 +60,17 @@ public class Report {
     private LocalDateTime supervisorApprovedAt;
 
     // -------------------------------------------------------------------------
+    // Reprovação pelo Professor Supervisor (Mud3)
+    // -------------------------------------------------------------------------
+
+    /** Parecer de reprovação do supervisor para reabertura de envio (Mud3). */
+    @Column(columnDefinition = "TEXT")
+    private String reprovacaoParecer;
+
+    /** Timestamp da reprovação pelo supervisor (Mud3). */
+    private LocalDateTime reprovadoAt;
+
+    // -------------------------------------------------------------------------
     // PR.01 — campos preenchidos pelo Professor Responsável
     // -------------------------------------------------------------------------
 

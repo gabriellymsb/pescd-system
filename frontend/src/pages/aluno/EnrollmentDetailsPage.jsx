@@ -107,6 +107,12 @@ export default function EnrollmentDetailsPage() {
             <dt>Frequência</dt><dd>{report.frequency}%</dd>
             <dt>Enviado em</dt><dd>{formatDateTime(report.submittedAt)}</dd>
             <dt>Arquivo</dt><dd>{report.fileName}</dd>
+            {report.reprovacaoParecer && (
+              <>
+                <dt>Reprovado pelo supervisor</dt><dd>{report.reprovacaoParecer}</dd>
+                <dt>Reprovado em</dt><dd>{formatDateTime(report.reprovadoAt)}</dd>
+              </>
+            )}
           </dl>
         )}
       </FileCard>

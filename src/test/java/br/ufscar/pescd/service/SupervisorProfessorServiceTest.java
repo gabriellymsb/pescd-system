@@ -5,6 +5,7 @@ import br.ufscar.pescd.dto.ApproveReportFormDTO;
 import br.ufscar.pescd.dto.OfferDetailsResponse;
 import br.ufscar.pescd.dto.OfferStudentDetailsResponse;
 import br.ufscar.pescd.dto.OfferStudentSummaryResponse;
+import br.ufscar.pescd.dto.RejectReportFormDTO;
 import br.ufscar.pescd.dto.ReportDetailsResponse;
 import br.ufscar.pescd.dto.SupervisorDashboardDTO;
 import br.ufscar.pescd.dto.WorkPlanDetailsResponse;
@@ -91,6 +92,12 @@ class SupervisorProfessorServiceTest {
         f.setParecer("Bom relatório");
         f.setFrequencia(88);
         f.setNotaSugestao(GradeOption.B);
+        return f;
+    }
+
+    private RejectReportFormDTO criarRejectReportForm() {
+        RejectReportFormDTO f = new RejectReportFormDTO();
+        f.setParecer("Relatório insatisfatório, favor revisar.");
         return f;
     }
 
@@ -366,6 +373,66 @@ class SupervisorProfessorServiceTest {
 
         OfferStudentSummaryResponse resultado =
                 service.approveReportForApi(10L, 2L, supervisor, criarReportForm());
+
+        assertSame(resumo, resultado);
+    }
+
+    // Mud3 — reprovação de relatório
+    @Test
+    @DisplayName("Reprova relatório com parecer e reabre para novo envio")
+    void relatorioEnviado_reprovaRelatorioComSucesso() {
+        // Ramo: status RELATORIO_ENVIADO e relatório existe -> reprova e volta para PLANO_APROVADO
+        os.setStatus(StudentOfferStatus.RELATORIO_ENVIADO);
+        Report relatorio = new Report();
+        when(reportRepository.findByOfferStudent(os)).thenReturn(Optional.of(relatorio));
+
+        service.rejectReport(10L, 2L, supervisor, criarRejectReportForm());
+
+        assertEquals("Relatório insatisfatório, favor revisar.", relatorio.getReprovacaoParecer());
+        assertNotNull(relatorio.getReprovadoAt());
+        assertEquals(StudentOfferStatus.PLANO_APROVADO, os.getStatus());
+        verify(reportRepository).save(relatorio);
+        verify(statusChangeLogRepository).save(any(StatusChangeLog.class));
+    }
+
+    @Test
+    @DisplayName("Reprovação de relatório rejeitada quando status não é RELATORIO_ENVIADO")
+    void statusInvalido_rejeitaReprovacaoRelatorio() {
+        // Ramo: status != RELATORIO_ENVIADO -> exceção
+        os.setStatus(StudentOfferStatus.PLANO_APROVADO);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> service.rejectReport(10L, 2L, supervisor, criarRejectReportForm()));
+
+        assertEquals("Ação indisponível: o status atual é \"Plano aprovado\".", ex.getMessage());
+        verify(reportRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Reprovação falha quando relatório não é encontrado")
+    void relatorioNaoEncontrado_rejeitaReprovacaoRelatorio() {
+        // Ramo: relatório não encontrado -> exceção
+        os.setStatus(StudentOfferStatus.RELATORIO_ENVIADO);
+        when(reportRepository.findByOfferStudent(os)).thenReturn(Optional.empty());
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> service.rejectReport(10L, 2L, supervisor, criarRejectReportForm()));
+
+        assertEquals("Relatório não encontrado.", ex.getMessage());
+    }
+
+    @Test
+    @DisplayName("Reprovar relatório pela API retorna o resumo atualizado")
+    void reprovarRelatorioViaApi_retornaResumo() {
+        // Ramo: rejectReportForApi -> rejectReport + toOfferStudentSummary
+        os.setStatus(StudentOfferStatus.RELATORIO_ENVIADO);
+        Report relatorio = new Report();
+        when(reportRepository.findByOfferStudent(os)).thenReturn(Optional.of(relatorio));
+        OfferStudentSummaryResponse resumo = mock(OfferStudentSummaryResponse.class);
+        when(offerApiMapper.toOfferStudentSummary(os)).thenReturn(resumo);
+
+        OfferStudentSummaryResponse resultado =
+                service.rejectReportForApi(10L, 2L, supervisor, criarRejectReportForm());
 
         assertSame(resumo, resultado);
     }

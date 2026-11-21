@@ -18,6 +18,7 @@ export default function SupervisorEnrollmentPage() {
   const [message, setMessage] = useState('');
   const [planParecer, setPlanParecer] = useState('');
   const [reportForm, setReportForm] = useState({ parecer: '', frequencia: '', notaSugestao: '' });
+  const [rejectParecer, setRejectParecer] = useState('');
   const [busy, setBusy] = useState(false);
 
   async function load() {
@@ -57,6 +58,17 @@ export default function SupervisorEnrollmentPage() {
         notaSugestao: reportForm.notaSugestao,
       });
       setMessage('Relatório aprovado.');
+      await load();
+    } catch (err) { setError(err.message); } finally { setBusy(false); }
+  }
+
+  async function rejectReport(event) {
+    event.preventDefault();
+    setError(''); setMessage(''); setBusy(true);
+    try {
+      await api.post(`${base}/report/reject`, { parecer: rejectParecer });
+      setMessage('Relatório reprovado e reaberto para o aluno.');
+      setRejectParecer('');
       await load();
     } catch (err) { setError(err.message); } finally { setBusy(false); }
   }
@@ -154,6 +166,25 @@ export default function SupervisorEnrollmentPage() {
               </div>
             </div>
             <button className="btn" type="submit" disabled={busy}>✓ Aprovar relatório</button>
+          </form>
+        </div>
+      )}
+
+      {/* Mud3 — reprovar relatório */}
+      {status === 'RELATORIO_ENVIADO' && (
+        <div className="card" style={{ maxWidth: 720 }}>
+          <SectionTitle>Reprovar relatório (Mud3)</SectionTitle>
+          <p className="muted" style={{ marginBottom: 12 }}>
+            Se o relatório estiver insatisfatório, reprove-o com um parecer. O envio será reaberto para o aluno.
+          </p>
+          <form onSubmit={rejectReport}>
+            <div className="form-group">
+              <label>Parecer da reprovação *</label>
+              <textarea rows={4} value={rejectParecer}
+                onChange={(e) => setRejectParecer(e.target.value)}
+                placeholder="Descreva o motivo da reprovação para correção pelo aluno…" required />
+            </div>
+            <button className="btn btn-ghost" type="submit" disabled={busy}>✕ Reprovar relatório</button>
           </form>
         </div>
       )}

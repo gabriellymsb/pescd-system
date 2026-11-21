@@ -5,6 +5,7 @@ import br.ufscar.pescd.dto.ApproveReportFormDTO;
 import br.ufscar.pescd.dto.OfferDetailsResponse;
 import br.ufscar.pescd.dto.OfferStudentDetailsResponse;
 import br.ufscar.pescd.dto.OfferStudentSummaryResponse;
+import br.ufscar.pescd.dto.RejectReportFormDTO;
 import br.ufscar.pescd.dto.ReportDetailsResponse;
 import br.ufscar.pescd.dto.WorkPlanDetailsResponse;
 import br.ufscar.pescd.entity.OfferStudent;
@@ -137,6 +138,20 @@ class SupervisorProfessorApiControllerTest {
         when(service.approveReportForApi(1L, 2L, professor, form)).thenReturn(resumo);
 
         OfferStudentSummaryResponse resultado = controller.approveReport(1L, 2L, form, auth);
+
+        assertSame(resumo, resultado);
+    }
+
+    // Mud3 — Caminho: POST reprovar relatorio -> delega ao service com o form
+    @Test
+    @DisplayName("Reprova o relatorio")
+    void rejectReport_delegaAoService() {
+
+        RejectReportFormDTO form = new RejectReportFormDTO();
+        OfferStudentSummaryResponse resumo = mock(OfferStudentSummaryResponse.class);
+        when(service.rejectReportForApi(1L, 2L, professor, form)).thenReturn(resumo);
+
+        OfferStudentSummaryResponse resultado = controller.rejectReport(1L, 2L, form, auth);
 
         assertSame(resumo, resultado);
     }

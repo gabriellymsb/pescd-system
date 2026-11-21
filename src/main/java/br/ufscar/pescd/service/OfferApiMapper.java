@@ -245,7 +245,9 @@ public class OfferApiMapper {
                 report.getResponsavelFrequencia(),
                 report.getResponsavelNota(),
                 report.getResponsavelNota() != null ? report.getResponsavelNota().getDisplayName() : null,
-                report.getResponsavelApprovedAt()
+                report.getResponsavelApprovedAt(),
+                report.getReprovacaoParecer(),
+                report.getReprovadoAt()
         );
     }
 

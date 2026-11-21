@@ -2,6 +2,7 @@ package br.ufscar.pescd.controller;
 
 import br.ufscar.pescd.dto.ApprovePlanFormDTO;
 import br.ufscar.pescd.dto.ApproveReportFormDTO;
+import br.ufscar.pescd.dto.RejectReportFormDTO;
 import br.ufscar.pescd.dto.SupervisorDashboardDTO;
 import br.ufscar.pescd.entity.OfferStudent;
 import br.ufscar.pescd.entity.Report;
@@ -175,6 +176,7 @@ class SupervisorProfessorControllerTest {
         assertEquals(90, form.getFrequencia());
         assertSame(relatorio, model.getAttribute("report"));
         assertSame(logs, model.getAttribute("statusLogs"));
+        assertNotNull(model.getAttribute("rejectForm"));
         assertArrayEquals(GradeOption.values(), (GradeOption[]) model.getAttribute("gradeOptions"));
     }
 
@@ -211,7 +213,46 @@ class SupervisorProfessorControllerTest {
 
         assertEquals("professor/supervisor/approve-report", view);
         assertSame(relatorio, model.getAttribute("report"));
+        assertNotNull(model.getAttribute("rejectForm"));
         verify(service, never()).approveReport(anyLong(), anyLong(), any(), any());
+    }
+
+    // Mud3 — reprovação de relatório via MVC
+    @Test
+    @DisplayName("Reprovação válida de relatório redireciona para o dashboard com mensagem de sucesso")
+    void reprovarRelatorioValido_redirecionaParaDashboard() {
+        // Ramo: sem erros de binding -> chama service.rejectReport e redireciona
+        RejectReportFormDTO form = new RejectReportFormDTO();
+        form.setParecer("Relatório precisa de correções");
+        BindingResult br = new BeanPropertyBindingResult(form, "rejectForm");
+
+        String view = controller.rejectReport(1L, 2L, form, br, model, auth, redirect);
+
+        assertEquals("redirect:/professor/supervisor/dashboard", view);
+        assertEquals("Relatório reprovado e reaberto para novo envio do aluno.",
+                redirect.getFlashAttributes().get("successMessage"));
+        verify(service, times(1)).rejectReport(1L, 2L, professor, form);
+    }
+
+    @Test
+    @DisplayName("Reprovação inválida de relatório reexibe o formulário")
+    void reprovarRelatorioInvalido_reexibeFormulario() {
+        // Ramo: bindingResult.hasErrors -> reexibe approve-report sem chamar o service
+        RejectReportFormDTO form = new RejectReportFormDTO();
+        BindingResult br = new BeanPropertyBindingResult(form, "rejectForm");
+        br.rejectValue("parecer", "NotBlank", "O parecer é obrigatório.");
+        Report relatorio = new Report();
+        when(service.getEnrollmentForSupervisor(1L, 2L, professor)).thenReturn(os);
+        when(service.getWorkPlan(os)).thenReturn(new WorkPlan());
+        when(service.getReport(os)).thenReturn(relatorio);
+        when(service.getStatusLogs(os)).thenReturn(List.of());
+
+        String view = controller.rejectReport(1L, 2L, form, br, model, auth, redirect);
+
+        assertEquals("professor/supervisor/approve-report", view);
+        assertSame(relatorio, model.getAttribute("report"));
+        assertNotNull(model.getAttribute("form"));
+        verify(service, never()).rejectReport(anyLong(), anyLong(), any(), any());
     }
 
     // Caminho: download do relatorio -> PDF inline com o conteudo lido do storage

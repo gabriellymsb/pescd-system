@@ -493,6 +493,21 @@ class OfferApiMapperTest {
     }
 
     @Test
+    @DisplayName("Mapeia relatório reprovado com parecer e data de reprovação")
+    void relatorioReprovado_mapeiaParecerEData() {
+        // Ramo: reprovacaoParecer e reprovadoAt presentes
+        LocalDateTime agora = LocalDateTime.now();
+        Report relatorio = criarRelatorio(null, null, null);
+        relatorio.setReprovacaoParecer("Ajustar introdução");
+        relatorio.setReprovadoAt(agora);
+
+        ReportDetailsResponse resultado = mapper.toReportDetails(relatorio);
+
+        assertEquals("Ajustar introdução", resultado.reprovacaoParecer());
+        assertEquals(agora, resultado.reprovadoAt());
+    }
+
+    @Test
     @DisplayName("Mapeia documentação com nota")
     void documentacaoComNota_mapeiaRotulo() {
         // Ramo: responsavelNota presente -> rótulo preenchido

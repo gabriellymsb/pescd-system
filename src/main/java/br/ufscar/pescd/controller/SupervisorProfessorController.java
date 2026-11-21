@@ -2,6 +2,7 @@ package br.ufscar.pescd.controller;
 
 import br.ufscar.pescd.dto.ApprovePlanFormDTO;
 import br.ufscar.pescd.dto.ApproveReportFormDTO;
+import br.ufscar.pescd.dto.RejectReportFormDTO;
 import br.ufscar.pescd.dto.SupervisorDashboardDTO;
 import br.ufscar.pescd.entity.*;
 import br.ufscar.pescd.enums.GradeOption;
@@ -164,6 +165,7 @@ public class SupervisorProfessorController {
         model.addAttribute("statusLogs", supervisorProfessorService.getStatusLogs(os));
         model.addAttribute("gradeOptions", GradeOption.values());
         model.addAttribute("form", form);
+        model.addAttribute("rejectForm", new RejectReportFormDTO());
 
         return "professor/supervisor/approve-report";
     }
@@ -188,6 +190,7 @@ public class SupervisorProfessorController {
             model.addAttribute("report", supervisorProfessorService.getReport(os));
             model.addAttribute("statusLogs", supervisorProfessorService.getStatusLogs(os));
             model.addAttribute("gradeOptions", GradeOption.values());
+            model.addAttribute("rejectForm", new RejectReportFormDTO());
             return "professor/supervisor/approve-report";
         }
 
@@ -195,6 +198,39 @@ public class SupervisorProfessorController {
 
         redirectAttributes.addFlashAttribute("successMessage",
                 "Relatório aprovado com sucesso.");
+
+        return "redirect:/professor/supervisor/dashboard";
+    }
+
+    // Mud3 — reprovar o relatório do aluno com parecer
+    @PostMapping("/ofertas/{offerId}/alunos/{studentId}/reprovar-relatorio")
+    public String rejectReport(
+            @PathVariable Long offerId,
+            @PathVariable Long studentId,
+            @Valid @ModelAttribute("rejectForm") RejectReportFormDTO rejectForm,
+            BindingResult bindingResult,
+            Model model,
+            Authentication authentication,
+            RedirectAttributes redirectAttributes
+    ) {
+        User professor = resolveUser(authentication);
+
+        if (bindingResult.hasErrors()) {
+            OfferStudent os = supervisorProfessorService
+                    .getEnrollmentForSupervisor(offerId, studentId, professor);
+            model.addAttribute("offerStudent", os);
+            model.addAttribute("workPlan", supervisorProfessorService.getWorkPlan(os));
+            model.addAttribute("report", supervisorProfessorService.getReport(os));
+            model.addAttribute("statusLogs", supervisorProfessorService.getStatusLogs(os));
+            model.addAttribute("gradeOptions", GradeOption.values());
+            model.addAttribute("form", new ApproveReportFormDTO());
+            return "professor/supervisor/approve-report";
+        }
+
+        supervisorProfessorService.rejectReport(offerId, studentId, professor, rejectForm);
+
+        redirectAttributes.addFlashAttribute("successMessage",
+                "Relatório reprovado e reaberto para novo envio do aluno.");
 
         return "redirect:/professor/supervisor/dashboard";
     }

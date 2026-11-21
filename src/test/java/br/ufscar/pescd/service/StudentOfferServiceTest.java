@@ -30,6 +30,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -527,6 +528,8 @@ class StudentOfferServiceTest {
         enrollment.setStatus(StudentOfferStatus.PLANO_APROVADO);
         Report existente = new Report();
         existente.setFileFid("1,old");
+        existente.setReprovacaoParecer("Parecer anterior");
+        existente.setReprovadoAt(LocalDateTime.now());
         when(reportRepository.findByOfferStudent(enrollment)).thenReturn(Optional.of(existente));
         when(storageService.store(any(), any(), any())).thenReturn("8,new");
 
@@ -534,6 +537,8 @@ class StudentOfferServiceTest {
 
         verify(storageService, times(1)).delete("1,old");
         assertEquals("8,new", existente.getFileFid());
+        assertNull(existente.getReprovacaoParecer());
+        assertNull(existente.getReprovadoAt());
     }
 
     @Test
