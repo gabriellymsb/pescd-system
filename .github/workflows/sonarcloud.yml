@@ -11,7 +11,6 @@ jobs:
   sonarcloud:
     name: Análise SonarCloud
     runs-on: ubuntu-latest
-
     services:
       postgres:
         image: postgres:16
@@ -26,25 +25,21 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
-
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
           cache: maven
-
       - name: Cache do SonarCloud
         uses: actions/cache@v4
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
-
       - name: Testes, cobertura e análise
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -53,4 +48,5 @@ jobs:
             echo "::warning title=SonarCloud::Secret SONAR_TOKEN não configurado; análise ignorada."
             exit 0
           fi
+          git fetch origin main:refs/remotes/origin/master || true
           ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
